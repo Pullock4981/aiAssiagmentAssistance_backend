@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const authRoutes = require('./app/modules/auth/auth.route');
+const authRoutes = require('./routes/auth.route');
+const assignmentRoutes = require('./routes/assignment.route');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/assignments', assignmentRoutes);
 
 // Default Route
 app.get('/', (req, res) => {
