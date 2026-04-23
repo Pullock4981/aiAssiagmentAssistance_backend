@@ -6,6 +6,8 @@ const authRoutes = require('./routes/auth.route');
 const assignmentRoutes = require('./routes/assignment.route');
 const submissionRoutes = require('./routes/submission.route');
 const analyticsRoutes = require('./routes/analytics.route');
+const aiRoutes = require('./routes/ai.route');
+const globalErrorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -21,6 +23,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Default Route
 app.get('/', (req, res) => {
@@ -33,10 +36,12 @@ app.get('/', (req, res) => {
 
 // 404 Route handler
 app.use((req, res, next) => {
-    res.status(404).json({
-        success: false,
-        message: `Not Found - ${req.originalUrl}`
-    });
+    const error = new Error(`Not Found - ${req.originalUrl}`);
+    error.statusCode = 404;
+    next(error);
 });
+
+// Global Error Handler (Must be at the end)
+app.use(globalErrorHandler);
 
 module.exports = app;
