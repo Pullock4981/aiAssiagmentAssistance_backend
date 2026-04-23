@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const authRoutes = require('./routes/auth.route');
 const assignmentRoutes = require('./routes/assignment.route');
 const submissionRoutes = require('./routes/submission.route');
+const analyticsRoutes = require('./routes/analytics.route');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/submissions', submissionRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Default Route
 app.get('/', (req, res) => {
