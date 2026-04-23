@@ -2,34 +2,38 @@ const globalErrorHandler = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
-    // ১. Mongoose Duplicate Key Error (ইউজার আগে থেকেই থাকলে)
+    let error = { ...err };
+    error.message = err.message;
+
+    // ১. Mongoose Duplicate Key Error
     if (err.code === 11000) {
-        err.message = 'Duplicate field value entered. Please use another value';
-        err.statusCode = 400;
+        error.message = 'User with this email already exists. Please use another email.';
+        error.statusCode = 400;
     }
 
-    // ২. Mongoose Validation Error (যেমন: পাসওয়ার্ড প্যাটার্ন না মিললে)
+    // ২. Mongoose Validation Error
     if (err.name === 'ValidationError') {
-        const messages = Object.values(err.errors).map(val => val.message);
-        err.message = `Invalid input data: ${messages.join('. ')}`;
-        err.statusCode = 400;
+        const messages = Object.values(err.errors || {}).map(val => val.message);
+        error.message = `Invalid input data: ${messages.join('. ')}`;
+        error.statusCode = 400;
     }
 
     // ৩. JWT Token Errors
     if (err.name === 'JsonWebTokenError') {
-        err.message = 'Invalid token. Please log in again';
-        err.statusCode = 401;
+        error.message = 'Invalid token. Please log in again';
+        error.statusCode = 401;
     }
 
     if (err.name === 'TokenExpiredError') {
-        err.message = 'Your token has expired. Please log in again';
-        err.statusCode = 401;
+        error.message = 'Your token has expired. Please log in again';
+        error.statusCode = 401;
     }
 
-    res.status(err.statusCode).json({
+    // Final response
+    res.status(error.statusCode || 500).json({
         success: false,
-        status: err.status,
-        message: err.message || 'Something went wrong',
+        status: error.status,
+        message: error.message || 'Something went wrong on the server',
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
 };
