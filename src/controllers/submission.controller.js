@@ -20,7 +20,6 @@ const getMySubmissions = async (req, res) => {
 
 const getSubmissionsByAssignment = async (req, res) => {
     try {
-        // এখানে req.user._id পাঠানো হচ্ছে ওনারশিপ চেক করার জন্য
         const result = await submissionService.getSubmissionsByAssignment(req.params.assignmentId, req.user._id);
         res.status(200).json({ success: true, data: result });
     } catch (error) {
@@ -30,7 +29,6 @@ const getSubmissionsByAssignment = async (req, res) => {
 
 const reviewSubmission = async (req, res) => {
     try {
-        // এখানেও req.user._id পাঠানো হচ্ছে সিকিউরিটির জন্য
         const result = await submissionService.reviewSubmission(req.params.id, req.body, req.user._id);
         res.status(200).json({ success: true, message: 'Submission reviewed successfully', data: result });
     } catch (error) {
@@ -38,4 +36,19 @@ const reviewSubmission = async (req, res) => {
     }
 };
 
-module.exports = { submitAssignment, getMySubmissions, getSubmissionsByAssignment, reviewSubmission };
+const getAllInstructorSubmissions = async (req, res) => {
+    try {
+        const result = await submissionService.getAllInstructorSubmissions(req.user._id);
+        res.status(200).json({ success: true, data: result });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+module.exports = { 
+    submitAssignment, 
+    getMySubmissions, 
+    getSubmissionsByAssignment, 
+    reviewSubmission, 
+    getAllInstructorSubmissions 
+};

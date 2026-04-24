@@ -9,7 +9,8 @@ router.post('/', protect, restrictTo('student'), submissionController.submitAssi
 router.get('/my-submissions', protect, restrictTo('student'), submissionController.getMySubmissions);
 
 // ইনস্ট্রাক্টরদের জন্য রুট
+router.get('/', protect, restrictTo('instructor'), submissionController.getAllInstructorSubmissions);
 router.get('/assignment/:assignmentId', protect, restrictTo('instructor'), submissionController.getSubmissionsByAssignment);
-router.patch('/:id/review', protect, restrictTo('instructor'), submissionController.reviewSubmission);
+router.patch('/:id', protect, restrictTo('instructor'), submissionController.reviewSubmission);
 
 module.exports = router;

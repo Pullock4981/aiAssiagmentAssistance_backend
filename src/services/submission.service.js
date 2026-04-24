@@ -21,7 +21,18 @@ const submitAssignment = async (data, studentId) => {
     });
 
     if (alreadySubmitted) {
-        throw new Error('You have already submitted this assignment');
+        // যদি সাবমিশন আগেই 'accepted' হয়ে যায়, তবে আর আপডেট করা যাবে না
+        if (alreadySubmitted.status === 'accepted') {
+            throw new Error('You have already submitted this assignment and it is approved. No further changes allowed.');
+        }
+        
+        // অন্যথায় স্টুডেন্ট তার আগের সাবমিশন আপডেট করতে পারবে (Re-submit)
+        const updated = await Submission.findByIdAndUpdate(alreadySubmitted._id, {
+            ...data,
+            status: 'pending', // আপডেট করার পর আবার পেন্ডিং করে দাও
+            feedback: '' // আগের ফিডব্যাক মুছে দাও
+        }, { new: true });
+        return updated;
     }
 
     const submission = await Submission.create({
@@ -72,9 +83,21 @@ const reviewSubmission = async (id, reviewData, instructorId) => {
     return updatedSubmission;
 };
 
+const getAllInstructorSubmissions = async (instructorId) => {
+    // ১. এই ইনস্ট্রাক্টরের তৈরি করা সব অ্যাসাইনমেন্ট আইডি খুঁজে বের করা
+    const assignments = await Assignment.find({ createdBy: instructorId }).select('_id');
+    const assignmentIds = assignments.map(a => a._id);
+
+    // ২. ওই অ্যাসাইনমেন্টগুলোর সব সাবমিশন খুঁজে বের করা
+    return await Submission.find({ assignment: { $in: assignmentIds } })
+        .populate('student', 'name email')
+        .populate('assignment', 'title');
+};
+
 module.exports = {
     submitAssignment,
     getMySubmissions,
     getSubmissionsByAssignment,
-    reviewSubmission
+    reviewSubmission,
+    getAllInstructorSubmissions
 };

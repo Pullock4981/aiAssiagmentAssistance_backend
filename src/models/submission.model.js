@@ -11,12 +11,16 @@ const submissionSchema = new mongoose.Schema({
         ref: 'User',
         required: [true, 'Student reference is required']
     },
-    submissionUrl: {
+    repoUrl: {
         type: String,
-        required: [true, 'Submission URL is required'],
+        required: [true, 'Repository URL is required'],
         trim: true
     },
-    notes: {
+    liveUrl: {
+        type: String,
+        trim: true
+    },
+    comment: {
         type: String,
         trim: true
     },
@@ -33,7 +37,7 @@ const submissionSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// একজন স্টুডেন্ট একটি অ্যাসাইনমেন্টে একবারই সাবমিট করতে পারবে (অ্যাডভান্সড লজিক)
+// একজন স্টুডেন্ট একটি অ্যাসাইনমেন্টে একবারই সাবমিট করতে পারবে
 submissionSchema.index({ assignment: 1, student: 1 }, { unique: true });
 
 const Submission = mongoose.model('Submission', submissionSchema);
