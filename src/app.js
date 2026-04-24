@@ -7,6 +7,7 @@ const assignmentRoutes = require('./routes/assignment.route');
 const submissionRoutes = require('./routes/submission.route');
 const analyticsRoutes = require('./routes/analytics.route');
 const aiRoutes = require('./routes/ai.route');
+const notificationRoutes = require('./routes/notification.route');
 const globalErrorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -24,6 +25,7 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Default Route
 app.get('/', (req, res) => {

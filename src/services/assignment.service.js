@@ -1,7 +1,25 @@
 const Assignment = require('../models/assignment.model');
+const User = require('../models/user.model');
+const { createNotification } = require('./notification.service');
 
 const createAssignment = async (data, instructorId) => {
-    return await Assignment.create({ ...data, createdBy: instructorId });
+    const assignment = await Assignment.create({ ...data, createdBy: instructorId });
+
+    // সব স্টুডেন্টকে নতুন অ্যাসাইনমেন্টের নোটিফিকেশন পাঠানো
+    try {
+        const students = await User.find({ role: 'student' }).select('_id');
+        const notifications = students.map(student => createNotification({
+            recipient: student._id,
+            type: 'new_submission', // reusing type as "new_assignment"
+            message: `📚 New assignment released: "${assignment.title}". Check it out and submit before the deadline!`,
+            relatedAssignment: assignment._id,
+        }));
+        await Promise.all(notifications);
+    } catch (notifErr) {
+        console.error('Assignment release notification failed (non-blocking):', notifErr.message);
+    }
+
+    return assignment;
 };
 
 const getAllAssignments = async () => {

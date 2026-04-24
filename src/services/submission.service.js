@@ -1,5 +1,6 @@
 const Submission = require('../models/submission.model');
 const Assignment = require('../models/assignment.model');
+const { createNotification } = require('./notification.service');
 
 const submitAssignment = async (data, studentId) => {
     // ১. অ্যাসাইনমেন্ট খুঁজে বের করা (ডেডলাইন চেক করার জন্য)
@@ -20,25 +21,37 @@ const submitAssignment = async (data, studentId) => {
         student: studentId 
     });
 
+    let submission;
+
     if (alreadySubmitted) {
-        // যদি সাবমিশন আগেই 'accepted' হয়ে যায়, তবে আর আপডেট করা যাবে না
+        // যদি সাবমিশন আগেই 'accepted' হয়ে যায়, তবে আর আপডেট করা যাবে না
         if (alreadySubmitted.status === 'accepted') {
             throw new Error('You have already submitted this assignment and it is approved. No further changes allowed.');
         }
         
-        // অন্যথায় স্টুডেন্ট তার আগের সাবমিশন আপডেট করতে পারবে (Re-submit)
-        const updated = await Submission.findByIdAndUpdate(alreadySubmitted._id, {
+        // অন্যথায় স্টুডেন্ট তার আগের সাবমিশন আপডেট করতে পারবে (Re-submit)
+        submission = await Submission.findByIdAndUpdate(alreadySubmitted._id, {
             ...data,
-            status: 'pending', // আপডেট করার পর আবার পেন্ডিং করে দাও
-            feedback: '' // আগের ফিডব্যাক মুছে দাও
+            status: 'pending',
+            feedback: ''
         }, { new: true });
-        return updated;
+    } else {
+        submission = await Submission.create({ ...data, student: studentId });
     }
 
-    const submission = await Submission.create({
-        ...data,
-        student: studentId
-    });
+    // ৪. ইনস্ট্রাক্টরকে নোটিফিকেশন পাঠানো
+    try {
+        await createNotification({
+            recipient: assignment.createdBy,
+            type: 'new_submission',
+            message: `A student submitted "${assignment.title}". Review it now.`,
+            relatedSubmission: submission._id,
+            relatedAssignment: assignment._id,
+        });
+    } catch (notifErr) {
+        console.error('Notification creation failed (non-blocking):', notifErr.message);
+    }
+
     return submission;
 };
 
@@ -48,7 +61,7 @@ const getMySubmissions = async (studentId) => {
 };
 
 const getSubmissionsByAssignment = async (assignmentId, instructorId) => {
-    // শুধু ওই ইনস্ট্রাক্টরই সাবমিশন দেখতে পারবেন যিনি অ্যাসাইনমেন্টটি তৈরি করেছেন (অ্যাডভান্সড সিকিউরিটি)
+    // শুধু ওই ইনস্ট্রাক্টরই সাবমিশন দেখতে পারবেন যিনি অ্যাসাইনমেন্টটি তৈরি করেছেন
     const assignment = await Assignment.findById(assignmentId);
     if (!assignment || assignment.createdBy.toString() !== instructorId.toString()) {
         throw new Error('You are not authorized to view submissions for this assignment');
@@ -65,30 +78,42 @@ const reviewSubmission = async (id, reviewData, instructorId) => {
         throw new Error('Submission not found');
     }
 
-    // ৪. ইনস্ট্রাক্টর ওনারশিপ চেক
-    // চেক করা হচ্ছে—যে ইনস্ট্রাক্টর রিভিউ দিচ্ছেন, তিনি কি এই অ্যাসাইনমেন্টের মালিক?
+    // ইনস্ট্রাক্টর ওনারশিপ চেক
     if (submission.assignment.createdBy.toString() !== instructorId.toString()) {
         throw new Error('You are not authorized to review this submission');
     }
 
     const updatedSubmission = await Submission.findByIdAndUpdate(
         id, 
-        {
-            status: reviewData.status,
-            feedback: reviewData.feedback
-        },
+        { status: reviewData.status, feedback: reviewData.feedback },
         { new: true, runValidators: true }
     );
+
+    // স্টুডেন্টকে নোটিফিকেশন পাঠানো
+    try {
+        const statusLabel = 
+            reviewData.status === 'accepted' ? '✅ Accepted' :
+            reviewData.status === 'needs-improvement' ? '⚠️ Needs Improvement' :
+            '🕐 Pending';
+
+        await createNotification({
+            recipient: submission.student,
+            type: 'status_changed',
+            message: `Your submission for "${submission.assignment.title}" has been updated to: ${statusLabel}.`,
+            relatedSubmission: submission._id,
+            relatedAssignment: submission.assignment._id,
+        });
+    } catch (notifErr) {
+        console.error('Notification creation failed (non-blocking):', notifErr.message);
+    }
 
     return updatedSubmission;
 };
 
 const getAllInstructorSubmissions = async (instructorId) => {
-    // ১. এই ইনস্ট্রাক্টরের তৈরি করা সব অ্যাসাইনমেন্ট আইডি খুঁজে বের করা
     const assignments = await Assignment.find({ createdBy: instructorId }).select('_id');
     const assignmentIds = assignments.map(a => a._id);
 
-    // ২. ওই অ্যাসাইনমেন্টগুলোর সব সাবমিশন খুঁজে বের করা
     return await Submission.find({ assignment: { $in: assignmentIds } })
         .populate('student', 'name email')
         .populate('assignment', 'title');
