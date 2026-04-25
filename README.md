@@ -12,9 +12,9 @@ I have implemented a sophisticated **AI Review Engine** using **Google Gemini 1.
 
 ## 📈 Advanced Analytics Engine
 
-The backend provides a high-performance analytics endpoint (`/api/analytics/instructor`) that aggregates:
-- **Difficulty Clustering:** Calculates the distribution of tasks across different skill levels.
-- **Submission Status Tracking:** Real-time counts of Accepted, Pending, and "Needs Improvement" submissions.
+The backend provides a high-performance analytics endpoint (`/api/analytics/instructor`) that aggregates platform-wide data:
+- **Difficulty Clustering:** Calculates the distribution of tasks across different skill levels platform-wide.
+- **Submission Status Tracking:** Real-time counts of Accepted, Pending, and "Needs Improvement" submissions across all assignments.
 - **Participation Metrics:** Global statistics for total assignments and student engagement.
 
 ## 🛠️ Tech Stack & Architecture
