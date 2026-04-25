@@ -10,7 +10,7 @@ const createAssignment = async (data, instructorId) => {
         const students = await User.find({ role: 'student' }).select('_id');
         const notifications = students.map(student => createNotification({
             recipient: student._id,
-            type: 'new_submission', // reusing type as "new_assignment"
+            type: 'new_assignment',
             message: `📚 New assignment released: "${assignment.title}". Check it out and submit before the deadline!`,
             relatedAssignment: assignment._id,
         }));
