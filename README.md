@@ -1,90 +1,64 @@
-# Learner Analytics & Assignment Platform (Backend)
+# ⚙️ AIMS Backend - Intelligent API Engine
 
-Welcome to the backend of the **Learner Analytics & Assignment Platform**, a robust and scalable solution designed to bridge the gap between technical instruction and student evaluation. This project is built as part of the **Technical Instructor Assessment** for **Programming Hero**.
+The core engine of the **AIMS** (AI-Powered Assignment Management System). This backend handles complex data orchestration, AI integrations, and real-time analytics calculations.
 
-## 🚀 Key Features
+## 🤖 AI Smart Logic (Beyond Standard)
 
-### For Instructors
-- **Assignment Management:** Create, update, and delete structured assignments with defined difficulty levels.
-- **Review System:** Comprehensive view of student submissions with the ability to provide feedback and update statuses (Accepted, Pending, Needs Improvement).
-- **AI Smart Assist:** Integrated Google Gemini AI to refine assignment descriptions and generate preliminary feedback based on student notes.
-- **Data Analytics:** Aggregated data endpoints for visual dashboards (Submission trends, difficulty distribution).
+I have implemented a sophisticated **AI Review Engine** using **Google Gemini 1.5 Flash**. Unlike standard implementations, our logic includes:
 
-### For Students
-- **Submission Portal:** Seamless assignment submission with URL and descriptive notes.
-- **Progress Tracking:** Real-time access to assignment status and instructor feedback.
+- **Intelligent Feedback Loops:** The AI doesn't just generate text; it analyzes student inputs for gibberish, validates technical links, and provides structured constructive criticism.
+- **Assignment Refiner:** A specialized tool for instructors to transform rough ideas into professional, well-structured assignment descriptions.
+- **Automated Validation:** Backend logic that works alongside AI to verify submission integrity before processing.
 
-## 🛠️ Tech Stack
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Database:** MongoDB (with Mongoose ODM)
-- **AI Integration:** Google Gemini AI (1.5 Flash)
-- **Security:** JWT (JSON Web Token), Bcrypt.js, Helmet, CORS
-- **Architecture:** Layered Architecture (Controller-Service-Model)
+## 📈 Advanced Analytics Engine
 
-## 🏗️ Architecture Overiew
-The project follows a **Layered Architecture** to ensure clean code, scalability, and maintainability:
-- **Models:** Defines the data structure using Mongoose schemas.
-- **Services:** Contains the core business logic and database interactions.
-- **Controllers:** Handles HTTP requests, input validation, and sends responses.
-- **Routes:** Defines API endpoints and connects them to controllers.
-- **Middleware:** Handles authentication, authorization, and global error handling.
+The backend provides a high-performance analytics endpoint (`/api/analytics/instructor`) that aggregates:
+- **Difficulty Clustering:** Calculates the distribution of tasks across different skill levels.
+- **Submission Status Tracking:** Real-time counts of Accepted, Pending, and "Needs Improvement" submissions.
+- **Participation Metrics:** Global statistics for total assignments and student engagement.
 
-## 🤖 The "Smart" Element (AI Implementation)
-We have integrated **Google Gemini 1.5 Flash** to automate repetitive tasks for instructors:
-- **Assignment Refiner:** Instructors can input rough drafts of assignments, and the AI optimizes them for clarity and professionalism.
-- **Feedback Generator:** The AI analyzes student notes against assignment requirements to suggest a constructive feedback draft, significantly reducing manual grading time.
+## 🛠️ Tech Stack & Architecture
+- **Runtime:** Node.js (Express.js)
+- **Database:** MongoDB (Mongoose ODM)
+- **AI Model:** Google Gemini 1.5 Flash
+- **Security:** JWT, Bcrypt.js, CORS, Helmet
+- **Structure:** Modular Layered Architecture (Controllers -> Services -> Models)
 
-## 📡 API Endpoints (Quick Reference)
+## 📡 Key API Reference
 
-### Authentication
-- `POST /api/auth/register` - Register a new user (Instructor/Student)
-- `POST /api/auth/login` - Login and receive JWT
+### 🔐 Authentication
+- `POST /api/auth/register` - Create Instructor/Student accounts.
+- `POST /api/auth/login` - Secure JWT-based entry.
 
-### Assignments
-- `POST /api/assignments` - Create new assignment (Instructor Only)
-- `GET /api/assignments` - View all assignments
-- `PATCH /api/assignments/:id` - Update assignment (Owner Only)
+### 📝 Assignments & Submissions
+- `GET/POST /api/assignments` - Full CRUD for task management.
+- `GET/POST /api/submissions` - Student portals and instructor review queues.
+- `PATCH /api/submissions/:id` - Multi-status submission updates.
 
-### Submissions
-- `POST /api/submissions` - Submit assignment (Student Only)
-- `PATCH /api/submissions/:id/review` - Review submission (Owner Only)
+### 🧠 Intelligence & Stats
+- `POST /api/ai/refine-assignment` - AI description optimization.
+- `GET /api/analytics/instructor` - Data source for frontend charts.
 
-### AI & Analytics
-- `POST /api/ai/refine-assignment` - AI-powered description refiner
-- `POST /api/ai/suggest-feedback` - AI-powered feedback generator
-- `GET /api/analytics/instructor` - Global stats for instructors
+## 🚦 Getting Started
 
-## ⚙️ Setup & Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone <your-repo-link>
-   cd backend
-   ```
-
-2. **Install dependencies:**
+1. **Install dependencies:**
    ```bash
    npm install
    ```
 
-3. **Configure Environment Variables:**
-   Create a `.env` file in the root and add:
+2. **Configure Environment:**
+   Create `.env` and add:
    ```env
    PORT=5000
-   MONGODB_URI=your_mongodb_connection_string
-   JWT_SECRET=your_secret_key
-   GEMINI_API_KEY=your_gemini_api_key
+   MONGODB_URI=your_mongodb_uri
+   JWT_SECRET=your_jwt_secret
+   GEMINI_API_KEY=your_gemini_key
    ```
 
-4. **Run the server:**
+3. **Run Server:**
    ```bash
-   # For development
    npm run dev
-
-   # For production
-   npm start
    ```
 
 ---
-Built with  by **Technical Instructor Candidate** for **Programming Hero**.
+Built for performance, scalability, and intelligence.
