@@ -35,18 +35,12 @@ const getAssignmentById = async (id) => {
 const updateAssignment = async (id, data, instructorId) => {
     const assignment = await Assignment.findById(id);
     if (!assignment) throw new Error('Assignment not found');
-    if (assignment.createdBy.toString() !== instructorId.toString()) {
-        throw new Error('Not authorized');
-    }
     return await Assignment.findByIdAndUpdate(id, data, { new: true, runValidators: true });
 };
 
 const deleteAssignment = async (id, instructorId) => {
     const assignment = await Assignment.findById(id);
     if (!assignment) throw new Error('Assignment not found');
-    if (assignment.createdBy.toString() !== instructorId.toString()) {
-        throw new Error('Not authorized');
-    }
     await Assignment.findByIdAndDelete(id);
     return { message: 'Assignment deleted' };
 };

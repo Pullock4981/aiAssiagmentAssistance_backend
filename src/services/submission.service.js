@@ -61,12 +61,6 @@ const getMySubmissions = async (studentId) => {
 };
 
 const getSubmissionsByAssignment = async (assignmentId, instructorId) => {
-    // শুধু ওই ইনস্ট্রাক্টরই সাবমিশন দেখতে পারবেন যিনি অ্যাসাইনমেন্টটি তৈরি করেছেন
-    const assignment = await Assignment.findById(assignmentId);
-    if (!assignment || assignment.createdBy.toString() !== instructorId.toString()) {
-        throw new Error('You are not authorized to view submissions for this assignment');
-    }
-
     return await Submission.find({ assignment: assignmentId })
         .populate('student', 'name email');
 };
@@ -78,10 +72,7 @@ const reviewSubmission = async (id, reviewData, instructorId) => {
         throw new Error('Submission not found');
     }
 
-    // ইনস্ট্রাক্টর ওনারশিপ চেক
-    if (submission.assignment.createdBy.toString() !== instructorId.toString()) {
-        throw new Error('You are not authorized to review this submission');
-    }
+    // reviewed by any instructor
 
     const updatedSubmission = await Submission.findByIdAndUpdate(
         id, 
@@ -111,10 +102,7 @@ const reviewSubmission = async (id, reviewData, instructorId) => {
 };
 
 const getAllInstructorSubmissions = async (instructorId) => {
-    const assignments = await Assignment.find({ createdBy: instructorId }).select('_id');
-    const assignmentIds = assignments.map(a => a._id);
-
-    return await Submission.find({ assignment: { $in: assignmentIds } })
+    return await Submission.find()
         .populate('student', 'name email')
         .populate('assignment', 'title');
 };

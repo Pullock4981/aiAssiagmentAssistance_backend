@@ -3,22 +3,16 @@ const Submission = require('../models/submission.model');
 const mongoose = require('mongoose');
 
 const getInstructorStats = async (instructorId) => {
-    // ১. ইনস্ট্রাক্টরের মোট অ্যাসাইনমেন্ট সংখ্যা
-    const totalAssignments = await Assignment.countDocuments({ createdBy: instructorId });
+    // ১. মোট অ্যাসাইনমেন্ট সংখ্যা (Global)
+    const totalAssignments = await Assignment.countDocuments();
 
-    // ২. ডিফিকাল্টি অনুযায়ী অ্যাসাইনমেন্ট ডিস্ট্রিবিউশন (For Bar Chart)
+    // ২. ডিফিকাল্টি অনুযায়ী অ্যাসাইনমেন্ট ডিস্ট্রিবিউশন (Global)
     const difficultyStats = await Assignment.aggregate([
-        { $match: { createdBy: new mongoose.Types.ObjectId(instructorId) } },
         { $group: { _id: "$difficulty", count: { $sum: 1 } } }
     ]);
 
-    // ৩. ইনস্ট্রাক্টরের সব অ্যাসাইনমেন্টের সাবমিশন স্ট্যাটাস (For Pie Chart)
-    // প্রথমে এই ইনস্ট্রাক্টরের সব অ্যাসাইনমেন্ট আইডি খুঁজে বের করা
-    const instructorAssignments = await Assignment.find({ createdBy: instructorId }).select('_id');
-    const assignmentIds = instructorAssignments.map(a => a._id);
-
+    // ৩. সব অ্যাসাইনমেন্টের সাবমিশন স্ট্যাটাস (Global)
     const submissionStats = await Submission.aggregate([
-        { $match: { assignment: { $in: assignmentIds } } },
         { $group: { _id: "$status", count: { $sum: 1 } } }
     ]);
 
