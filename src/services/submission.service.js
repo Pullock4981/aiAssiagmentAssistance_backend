@@ -39,17 +39,19 @@ const submitAssignment = async (data, studentId) => {
         submission = await Submission.create({ ...data, student: studentId });
     }
 
-    // ৪. ইনস্ট্রাক্টরকে নোটিফিকেশন পাঠানো
+    // ৪. সব ইনস্ট্রাক্টরকে নোটিফিকেশন পাঠানো (Global Instructor Model)
     try {
-        await createNotification({
-            recipient: assignment.createdBy,
+        const instructors = await User.find({ role: 'instructor' }).select('_id');
+        const notifications = instructors.map(instructor => createNotification({
+            recipient: instructor._id,
             type: 'new_submission',
-            message: `A student submitted "${assignment.title}". Review it now.`,
+            message: `🆕 New submission for "${assignment.title}". Review it now.`,
             relatedSubmission: submission._id,
             relatedAssignment: assignment._id,
-        });
+        }));
+        await Promise.all(notifications);
     } catch (notifErr) {
-        console.error('Notification creation failed (non-blocking):', notifErr.message);
+        console.error('Submission notification failed (non-blocking):', notifErr.message);
     }
 
     return submission;
